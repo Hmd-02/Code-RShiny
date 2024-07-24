@@ -1,17 +1,22 @@
 library(shiny)
 library(shinydashboard)
 library(leaflet)
+library(tidyr)
 
 dashboardPage(
-  dashboardHeader(title = "Prix des maisons en Inde",
-                  titleWidth = 300,
-                  tags$li(class = "dropdown", tags$a(href = "", icon("github"), "Code source", target = "_blank"))),
+  dashboardHeader(
+    title = "Prix des maisons en Alberta",
+    titleWidth = 300,
+    tags$li(class = "dropdown", tags$a(href = "https://github.com/Hmd-02/Code-RShiny", icon("github"), "Code source"))
+  ),
   dashboardSidebar(
     sidebarMenu(
       id = "sidebar",
       menuItem("Base de données", tabName = "data", icon = icon("database")),
       menuItem("Visualisation", tabName = "visu", icon = icon("chart-line")),
-      menuItem("Répartition", tabName = "rep", icon = icon("map"))
+      menuItem("Analyse de la Répartition", tabName = "rep_analysis", icon = icon("globe")),
+      menuItem("Facteurs Affectant les Prix", tabName = "price_factors", icon = icon("sliders-h")),
+      menuItem("Analyse de la Qualité", tabName = "quality_analysis", icon = icon("home"))
     )
   ),
   dashboardBody(
@@ -64,17 +69,31 @@ dashboardPage(
                                 column(width = 2,
                                        tags$br(),
                                        tags$p("Cette matrice présente les coefficients de corrélation qui existent entre les variables de la base de données. Les couleurs rouge foncées indiquent une forte corrélation positive entre les deux variables croisées et une couleur bleue foncée indique une corrélation négative entre les variables croisées. Lorsque la couleur est claire ou blanche, il n'y a pas de corrélation entre les variables croisées.")
-                              ))
+                                ))
                      ),
-                     tabPanel("Graphique 3", h4("Content for Graph 3")),
-                     tabPanel("Graphique 4", h4("Content for Graph 4"))
+                     tabPanel("Évolution des prix des maisons dans le temps",
+                              fluidRow(
+                                column(width = 12,
+                                       plotlyOutput("timeline")),
+                                column(width = 12,
+                                       actionButton("update", "Mettre à jour"))
+                              )),
+                     tabPanel("Prix en fonction de la superficie", 
+                              fluidRow(
+                                column(width = 12,
+                                       plotlyOutput("prix_vs_sup"))
+                              ))
               )
       ),
-      tabItem(tabName = "rep",
+      tabItem(tabName = "rep_analysis",
               box(width = 12, 
                   h1("Visualisation de la répartition"),
-                  leafletOutput("map")
+                  leafletOutput("heatmap")
               )
+      ),
+      tabItem(tabName = "price_factors",
+              h2("Influence"),
+              plotlyOutput("influence_caracteristiques")
       )
     )
   )
